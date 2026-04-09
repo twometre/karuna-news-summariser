@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %} · Dashboard{% endblock %}
+{% block body %}
+<div class="layout">
+  <div class="sidebar">
+    <a href="/dashboard" class="nav-item active"><div class="nav-dot"></div>Dashboard</a>
+    <a href="/feeds" class="nav-item"><div class="nav-dot"></div>Feeds</a>
+    <a href="/settings" class="nav-item"><div class="nav-dot"></div>Settings</a>
+    <a href="/logs" class="nav-item"><div class="nav-dot"></div>Logs</a>
+    <a href="/logout" class="nav-item" style="margin-top:auto;color:#434345"><div class="nav-dot"></div>Logout</a>
+  </div>
+  <div class="content">
+    {% for msg, cls in messages %}<div class="flash flash-{{ cls }}">{{ msg }}</div>{% endfor %}
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Sent today</div><div class="stat-value">{{ stats.sent_today }}</div><div class="stat-sub">articles</div></div>
+      <div class="stat-card"><div class="stat-label">Total feeds</div><div class="stat-value">{{ stats.feed_count }}</div><div class="stat-sub">{{ stats.category_count }} categories</div></div>
+      <div class="stat-card"><div class="stat-label">Seen articles</div><div class="stat-value">{{ stats.seen_count }}</div><div class="stat-sub">in DB</div></div>
+      <div class="stat-card"><div class="stat-label">Word limit</div><div class="stat-value">{{ stats.word_limit }}</div><div class="stat-sub">per summary</div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="card-title">Recent log</span></div>
+      <div class="card-body">
+        {% for line in logs %}
+        <div class="log-line"><span class="log-ts">{{ line.ts }}</span><span class="log-{{ line.level }}">{{ line.icon }}</span><span>{{ line.msg }}</span></div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="card-title">Token usage estimate</span><span style="font-size:11px;color:#434345">claude-haiku-4-5 · approximate</span></div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
+          <div><div class="stat-label">Runs this month</div><div style="font-size:18px;font-weight:500;color:#f9f9f9">{{ token.runs_month }}</div></div>
+          <div><div class="stat-label">Est. tokens used</div><div style="font-size:18px;font-weight:500;color:#f9f9f9">{{ token.tokens_month }}</div></div>
+          <div><div class="stat-label">Est. cost / month</div><div style="font-size:18px;font-weight:500;color:#FF9F1C">฿{{ token.cost_thb }}</div></div>
+        </div>
+        <div style="background:#07080a;border-radius:6px;height:6px;overflow:hidden">
+          <div style="background:#FF9F1C;height:100%;width:{{ token.gauge_pct }}%;border-radius:6px"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px">
+          <span style="font-size:11px;color:#434345">฿0</span>
+          <span style="font-size:11px;color:#434345">Budget: ฿{{ token.budget_thb }} /mo</span>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:#434345;line-height:1.6">
+          Haiku input ~{{ token.avg_input_tokens }} tok · output ~{{ token.avg_output_tokens }} tok per article · ${{ token.price_in }}/${{ token.price_out }} per 1M · USD/THB {{ token.fx_rate }}
+        </div>
+      </div>
+    </div>
+    <div class="bottom-bar">
+      <div class="status-pill"><div class="status-dot"></div>265-node-ncr-01 · running</div>
+      <form method="POST" action="/run"><button class="btn btn-primary" type="submit">Run now</button></form>
+    </div>
+  </div>
+</div>
+{% endblock %}

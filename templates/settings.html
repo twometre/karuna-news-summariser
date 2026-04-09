@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %} · Settings{% endblock %}
+{% block body %}
+<div class="layout">
+  <div class="sidebar">
+    <a href="/dashboard" class="nav-item"><div class="nav-dot"></div>Dashboard</a>
+    <a href="/feeds" class="nav-item"><div class="nav-dot"></div>Feeds</a>
+    <a href="/settings" class="nav-item active"><div class="nav-dot"></div>Settings</a>
+    <a href="/logs" class="nav-item"><div class="nav-dot"></div>Logs</a>
+    <a href="/logout" class="nav-item" style="margin-top:auto;color:#434345"><div class="nav-dot"></div>Logout</a>
+  </div>
+  <div class="content">
+    {% for msg, cls in messages %}<div class="flash flash-{{ cls }}">{{ msg }}</div>{% endfor %}
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">Schedule</span></div>
+      <div class="card-body">
+        <form method="POST" action="/settings/schedule">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-row">
+              <label class="form-label">Run hours (ICT, comma-separated)</label>
+              <input class="form-input" type="text" name="schedule_hours" value="{{ schedule_hours }}" placeholder="0,6,12,18">
+              <span class="hint">e.g. 0,6,12,18 = every 6h · 0,8,16 = every 8h · 0,12 = twice daily</span>
+            </div>
+            <div class="form-row">
+              <label class="form-label">Articles per run</label>
+              <input class="form-input" type="number" name="news_per_run" value="{{ news_per_run }}" min="1" max="20">
+              <span class="hint">Current: {{ news_per_run }} articles</span>
+            </div>
+          </div>
+          <div style="margin-top:12px"><button class="btn btn-primary" type="submit">Apply — restarts scheduler</button></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">Source diversity</span></div>
+      <div class="card-body">
+        <form method="POST" action="/settings/diversity">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-row">
+              <label class="form-label">Max articles per source per run</label>
+              <input class="form-input" type="number" name="max_per_source" value="{{ max_per_source }}" min="1" max="5">
+              <span class="hint">Current: {{ max_per_source }} · ลดเพื่อกระจาย source มากขึ้น</span>
+            </div>
+            <div style="padding-top:20px;font-size:12px;color:#6a6b6c;line-height:1.8">
+              ตัวอย่าง: 10 ข่าว / 3 category / 5 sources per category<br>
+              ค่า 1 → หยิบ 1 จากแต่ละ source วนไป<br>
+              ค่า 2 → หยิบได้สูงสุด 2 จาก source เดียวกัน
+            </div>
+          </div>
+          <div style="margin-top:12px"><button class="btn btn-primary" type="submit">Apply</button></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">Summary settings</span></div>
+      <div class="card-body">
+        <form method="POST" action="/settings/summary">
+          <div class="form-row" style="max-width:200px">
+            <label class="form-label">Max words per summary</label>
+            <input class="form-input" type="number" name="word_limit" value="{{ word_limit }}" min="30" max="200">
+            <span class="hint">Current: {{ word_limit }} words</span>
+          </div>
+          <div style="margin-top:12px"><button class="btn btn-primary" type="submit">Apply</button></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">Anthropic API key</span></div>
+      <div class="card-body">
+        <form method="POST" action="/settings/apikey">
+          <div class="form-row">
+            <label class="form-label">API key</label>
+            <input class="form-input" type="password" name="api_key" placeholder="{{ api_key_hint }}">
+            <span class="hint">Current: {{ api_key_hint }}</span>
+          </div>
+          <div style="margin-top:12px"><button class="btn btn-primary" type="submit">Apply</button></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">Discord webhook</span></div>
+      <div class="card-body">
+        <form method="POST" action="/settings/webhook">
+          <div class="form-row">
+            <label class="form-label">Webhook URL</label>
+            <input class="form-input" type="password" name="webhook_url" placeholder="{{ webhook_hint }}">
+            <span class="hint">Current: {{ webhook_hint }}</span>
+          </div>
+          <div style="margin-top:12px"><button class="btn btn-primary" type="submit">Apply</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %} · Login{% endblock %}
+{% block body %}
+<div style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 48px)">
+  <div style="width:320px;display:flex;flex-direction:column;gap:20px">
+    <div>
+      <div style="font-size:20px;font-weight:600;color:#f9f9f9;margin-bottom:4px">Admin access</div>
+      <div style="font-size:13px;color:#6a6b6c">Hint: <span style="font-family:monospace;color:#9c9c9d">-----A6d</span></div>
+    </div>
+    {% for msg, cls in messages %}<div class="flash flash-{{ cls }}">{{ msg }}</div>{% endfor %}
+    <form method="POST" style="display:flex;flex-direction:column;gap:12px">
+      <div class="form-row">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" name="password" autofocus placeholder="Enter password">
+      </div>
+      <button class="btn btn-primary" type="submit" style="width:100%;padding:10px">Unlock</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+
+# Secrets & environment
+.env
+*.env
+karuna.env
+
+# Data
+*.db
+*.sqlite
+logs/
+
+# OS
+.DS_Store

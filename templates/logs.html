@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %} · Logs{% endblock %}
+{% block body %}
+<div class="layout">
+  <div class="sidebar">
+    <a href="/dashboard" class="nav-item"><div class="nav-dot"></div>Dashboard</a>
+    <a href="/feeds" class="nav-item"><div class="nav-dot"></div>Feeds</a>
+    <a href="/settings" class="nav-item"><div class="nav-dot"></div>Settings</a>
+    <a href="/logs" class="nav-item active"><div class="nav-dot"></div>Logs</a>
+    <a href="/logout" class="nav-item" style="margin-top:auto;color:#434345"><div class="nav-dot"></div>Logout</a>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="card-head"><span class="card-title">karuna.log</span><span style="font-size:11px;color:#434345">last 100 lines</span></div>
+      <div class="card-body" style="background:#07080a;border-radius:0 0 8px 8px;max-height:500px;overflow-y:auto">
+        {% for line in logs %}
+        <div class="log-line"><span class="log-ts">{{ line.ts }}</span><span class="log-{{ line.level }}">{{ line.icon }}</span><span>{{ line.msg }}</span></div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %} · Feeds{% endblock %}
+{% block body %}
+<div class="layout">
+  <div class="sidebar">
+    <a href="/dashboard" class="nav-item"><div class="nav-dot"></div>Dashboard</a>
+    <a href="/feeds" class="nav-item active"><div class="nav-dot"></div>Feeds</a>
+    <a href="/settings" class="nav-item"><div class="nav-dot"></div>Settings</a>
+    <a href="/logs" class="nav-item"><div class="nav-dot"></div>Logs</a>
+    <a href="/logout" class="nav-item" style="margin-top:auto;color:#434345"><div class="nav-dot"></div>Logout</a>
+  </div>
+  <div class="content">
+    {% for msg, cls in messages %}<div class="flash flash-{{ cls }}">{{ msg }}</div>{% endfor %}
+    <div class="card">
+      <div class="card-head"><span class="card-title">Add feed</span></div>
+      <div class="card-body">
+        <form method="POST" action="/feeds/add">
+          <div class="form-row-inline">
+            <div class="form-row"><label class="form-label">RSS URL</label><input class="form-input" type="url" name="url" placeholder="https://example.com/feed.xml" required></div>
+            <div class="form-row"><label class="form-label">Name</label><input class="form-input" type="text" name="name" placeholder="Source name" required></div>
+            <div class="form-row"><label class="form-label">Category</label><select class="form-select" name="category"><option value="tech">Tech</option><option value="gaming">Gaming</option><option value="world">World</option></select></div>
+          </div>
+          <div style="margin-top:10px"><button class="btn btn-primary" type="submit">Add feed</button></div>
+        </form>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="card-title">Active feeds ({{ feeds|length }})</span></div>
+      <div class="card-body">
+        {% for feed in feeds %}
+        <div class="feed-row">
+          <span class="cat-badge cat-{{ feed.category }}">{{ feed.category|upper }}</span>
+          <span class="feed-name">{{ feed.name }}</span>
+          <span class="feed-url">{{ feed.url[:50] }}{% if feed.url|length > 50 %}…{% endif %}</span>
+          <form method="POST" action="/feeds/remove"><input type="hidden" name="url" value="{{ feed.url }}"><button class="btn btn-danger" type="submit">Remove</button></form>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
