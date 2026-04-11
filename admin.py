@@ -276,6 +276,18 @@ def logs():
         logs=parse_logs(100),
         next_run=get_next_run())
 
+
+@app.route('/settings/diversity', methods=['POST'])
+@login_required
+def settings_diversity():
+    val = request.form.get('max_per_source', '2')
+    if val.isdigit() and 1 <= int(val) <= 5:
+        set_setting('max_per_source', val)
+        session['flash'] = [(f'Max per source set to {val} — applied immediately', 'ok')]
+    else:
+        session['flash'] = [('Invalid value — must be 1–5', 'err')]
+    return redirect('/settings')
+
 if __name__ == '__main__':
     init_db()
     app.run(host='0.0.0.0', port=8765, debug=False)
