@@ -1,0 +1,48 @@
+services:
+  karuna:
+    build: .
+    container_name: karuna
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - /mnt/usb-storage/karuna:/mnt/usb-storage/karuna
+    mem_limit: 512m
+    memswap_limit: 512m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  karuna-admin:
+    build: .
+    container_name: karuna-admin
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "8768:8768"
+    volumes:
+      - /mnt/usb-storage/karuna:/mnt/usb-storage/karuna
+    mem_limit: 256m
+    memswap_limit: 256m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    command: ["python", "admin.py"]
+  karuna-bot:
+    build: .
+    container_name: karuna-bot
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - /mnt/usb-storage/karuna:/mnt/usb-storage/karuna
+    mem_limit: 256m
+    memswap_limit: 256m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    command: ["python", "bot.py"]
