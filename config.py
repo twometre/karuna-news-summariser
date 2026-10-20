@@ -1,14 +1,16 @@
-# Karuna News Summariser v0.1.0
+# Karuna News Summariser v0.3.0
 # config.py
 
 import os
 
-DATA_DIR = "/mnt/usb-storage/karuna"
+DATA_DIR = os.environ.get("KARUNA_DATA_DIR", "/mnt/usb-storage/karuna")
 DB_PATH = os.path.join(DATA_DIR, "db", "karuna.db")
 LOG_PATH = os.path.join(DATA_DIR, "logs", "karuna.log")
+LOCK_PATH = os.path.join(DATA_DIR, "pipeline.lock")
 
 SUMMARY_MAX_WORDS = 80
 NEWS_PER_RUN = 10
+FETCH_TIMEOUT = 10  # seconds per feed fetch
 
 RSS_FEEDS = [
     {"url": "https://hnrss.org/frontpage", "category": "tech"},
@@ -28,5 +30,7 @@ RSS_FEEDS = [
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", "")
 
-ADMIN_PASSWORD = "87345A6d"
-ADMIN_HINT = "-----A6d"
+# Secrets come from the environment only — never hardcode (leaked 2026-04 via git history).
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
+ADMIN_PORT = int(os.environ.get("ADMIN_PORT", "8768"))
+FLASK_SECRET_KEY = os.environ.get("FLASK_SECRET_KEY", "")

@@ -2,7 +2,7 @@ import requests
 import logging
 from datetime import datetime, timezone, timedelta
 from config import LOG_PATH
-from db import get_setting, mark_seen
+from db import get_setting
 
 logging.basicConfig(filename=LOG_PATH, level=logging.INFO,
                     format="%(asctime)s [%(levelname)s] %(message)s")
@@ -21,7 +21,7 @@ def send_to_discord(articles):
     try:
         requests.post(webhook_url, json={
             "content": f"📡 **Karuna News Summariser** — {time_str}\n{len(articles)} stories from your feeds"
-        }).raise_for_status()
+        }, timeout=15).raise_for_status()
     except Exception as e:
         logging.error(f"Failed to send header: {e}")
         return False
@@ -38,8 +38,7 @@ def send_to_discord(articles):
             "footer": {"text": f"#{i} · {article['category'].upper()} · Karuna News Summariser"}
         }
         try:
-            requests.post(webhook_url, json={"embeds": [embed]}).raise_for_status()
-            mark_seen(article["url"], article["title"])
+            requests.post(webhook_url, json={"embeds": [embed]}, timeout=15).raise_for_status()
             success += 1
         except Exception as e:
             logging.error(f"Failed to send article {i}: {e}")

@@ -2,7 +2,11 @@ import sqlite3
 from config import DB_PATH
 
 def get_conn():
-    return sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=10)
+    # WAL + busy_timeout: three containers share this DB file over a bind mount.
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA busy_timeout=10000")
+    return conn
 
 def init_db():
     conn = get_conn()
