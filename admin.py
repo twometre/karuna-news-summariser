@@ -1,16 +1,28 @@
-# admin.py — Karuna Admin Panel v0.1.0
+# admin.py — Karuna Admin Panel v0.3.0
 
+import secrets
 import threading
 import re
 from datetime import datetime, timezone, timedelta
 from functools import wraps
 from flask import Flask, render_template, request, redirect, session
 
-from config import ADMIN_PASSWORD, LOG_PATH
+from config import ADMIN_PASSWORD, ADMIN_PORT, FLASK_SECRET_KEY, LOG_PATH
 from db import get_conn, get_setting, set_setting, init_db
+from pipeline import run_pipeline, setup_logging
 
+setup_logging()
 app = Flask(__name__)
-app.secret_key = "karuna-admin-s3cr3t-key-2026"
+# Secret key: env first, else generated once and persisted in the settings table
+# so sessions survive restarts. Never hardcode (leaked via git history before).
+if FLASK_SECRET_KEY:
+    app.secret_key = FLASK_SECRET_KEY
+else:
+    _k = get_setting("flask_secret_key")
+    if not _k:
+        _k = secrets.token_hex(32)
+        set_setting("flask_secret_key", _k)
+    app.secret_key = _k
 ICT = timezone(timedelta(hours=7))
 
 def login_required(f):
@@ -126,7 +138,7 @@ def index():
 def login():
     messages = []
     if request.method == 'POST':
-        if request.form.get('password') == ADMIN_PASSWORD:
+        if ADMIN_PASSWORD and request.form.get('password') == ADMIN_PASSWORD:
             session['authed'] = True
             return redirect('/dashboard')
         messages.append(("Incorrect password", "err"))
@@ -150,14 +162,7 @@ def dashboard():
 @app.route('/run', methods=['POST'])
 @login_required
 def run_now():
-    def _run():
-        from crawler import fetch_articles
-        from summariser import summarise_batch
-        from notifier import send_to_discord
-        articles = fetch_articles(limit=int(get_setting("news_per_run") or 10))
-        summaries = summarise_batch(articles)
-        send_to_discord(summaries)
-    threading.Thread(target=_run, daemon=True).start()
+    threading.Thread(target=run_pipeline, daemon=True).start()
     session['flash'] = [("Pipeline started — check Discord in ~30 seconds", "ok")]
     return redirect('/dashboard')
 
@@ -290,4 +295,4 @@ def settings_diversity():
 
 if __name__ == '__main__':
     init_db()
-    app.run(host='0.0.0.0', port=8765, debug=False)
+    app.run(host='0.0.0.0', port=ADMIN_PORT, debug=False)

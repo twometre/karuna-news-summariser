@@ -1,14 +1,13 @@
-# bot.py — Karuna Discord Bot v0.1.0
+# bot.py — Karuna Discord Bot v0.3.0
 
 import discord
 import asyncio
 import logging
 from discord import app_commands
-from config import LOG_PATH
 from db import get_setting
+from pipeline import run_pipeline, setup_logging
 
-logging.basicConfig(filename=LOG_PATH, level=logging.INFO,
-                    format="%(asctime)s [%(levelname)s] %(message)s")
+setup_logging()
 
 def get_bot_token():
     return get_setting("discord_bot_token")
@@ -44,20 +43,12 @@ async def newnews(interaction: discord.Interaction):
     await interaction.response.defer(thinking=True)
     logging.info(f"/newnews triggered by {interaction.user}")
 
-    # รัน pipeline ใน thread pool โดยไม่บล็อก event loop
+    # pipeline.py holds a cross-container flock — a concurrent scheduled run
+    # makes this a no-op instead of a duplicate digest.
     loop = asyncio.get_event_loop()
-    await loop.run_in_executor(None, _run_pipeline)
+    await loop.run_in_executor(None, run_pipeline)
 
     await interaction.followup.send("📡 Done — check the news channel!")
-
-def _run_pipeline():
-    from crawler import fetch_articles
-    from summariser import summarise_batch
-    from notifier import send_to_discord
-    limit = int(get_setting("news_per_run") or 10)
-    articles = fetch_articles(limit=limit)
-    summaries = summarise_batch(articles)
-    send_to_discord(summaries)
 
 if __name__ == "__main__":
     token = get_bot_token()

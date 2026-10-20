@@ -22,7 +22,7 @@ Built as a vibe coding experiment: can you build something genuinely useful, run
 
 - `feedparser` — RSS parsing
 - `anthropic` — summarisation
-- `flask` — admin panel (port 8765)
+- `flask` — admin panel (port 8768)
 - `apscheduler` — scheduling
 - `sqlite` — deduplication + settings storage
 

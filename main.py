@@ -1,33 +1,12 @@
 import logging
 import signal
 import sys
-from datetime import datetime, timezone, timedelta
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
-from db import init_db
-from crawler import fetch_articles
-from summariser import summarise_batch
-from notifier import send_to_discord
-from config import LOG_PATH
-from db import get_setting
+from db import init_db, get_setting
+from pipeline import run_pipeline, setup_logging
 
-logging.basicConfig(filename=LOG_PATH, level=logging.INFO,
-                    format="%(asctime)s [%(levelname)s] %(message)s")
-
-def run_pipeline():
-    bkk_time = datetime.now(timezone(timedelta(hours=7))).strftime("%d %b %Y %H:%M ICT")
-    logging.info(f"=== Pipeline started at {bkk_time} ===")
-    print(f"\n[{bkk_time}] Pipeline starting...")
-    limit = int(get_setting("news_per_run") or 10)
-    articles = fetch_articles(limit=limit)
-    if not articles:
-        logging.warning("No new articles found")
-        print("⚠️  No new articles found")
-        return
-    print(f"✅ Fetched {len(articles)} articles")
-    summaries = summarise_batch(articles)
-    print(f"✅ Summarised {len(summaries)} articles")
-    send_to_discord(summaries)
+setup_logging()
 
 def handle_shutdown(sig, frame):
     print("\n🛑 Karuna shutting down...")
@@ -68,7 +47,7 @@ if __name__ == "__main__":
     schedule = get_setting("schedule_hours") or "0,6,12,18"
     hours = ",".join(h.strip() for h in schedule.split(","))
 
-    print("🌿 Karuna News Summariser v0.1.0 starting...")
+    print("🌿 Karuna News Summariser v0.3.0 starting...")
     scheduler = BlockingScheduler(timezone="Asia/Bangkok")
     scheduler.add_job(run_pipeline, CronTrigger(hour=hours, minute=0, timezone="Asia/Bangkok"))
 
